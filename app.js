@@ -378,6 +378,7 @@ if (fileInput) {
       allRows = rows;
       actualKeys = detectFields(rows[0] || {});
       setupFilters(rows);
+      setupRecordToggle();
       applyActiveFilters();
     } catch (error) {
       console.error(error);
@@ -386,27 +387,4 @@ if (fileInput) {
   });
 }
 
-setStatus("Cargando datos pre-cargados...");
-
-async function loadDefaultData() {
-  try {
-    const response = await fetch("./data.json");
-    if (!response.ok) throw new Error("No se pudo cargar data.json");
-    const rows = await response.json();
-    if (!rows.length) throw new Error("data.json está vacío");
-
-    allRows = rows;
-    actualKeys = detectFields(rows[0] || {});
-    setupFilters(rows);
-    setupRecordToggle();
-    applyActiveFilters();
-
-    setStatus(`Datos cargados automáticamente (${rows.length} registros)`, false);
-    updateMetadata(rows);
-  } catch (error) {
-    console.warn("No se cargó data.json:", error);
-    setStatus("No se pudieron cargar los datos automáticos.", true);
-  }
-}
-
-loadDefaultData();
+setStatus("Carga un archivo Excel para comenzar.", false);
