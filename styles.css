@@ -133,6 +133,12 @@ tbody tr:hover {
   box-shadow: 0 20px 40px var(--shadow);
 }
 
+.card canvas {
+  width: 100%;
+  height: 250px;
+  max-height: 250px;
+}
+
 .card h2 {
   margin-top: 0;
   font-size: 1.1rem;
