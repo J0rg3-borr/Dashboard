@@ -7,6 +7,7 @@ const clearFiltersBtn = document.getElementById("clearFilters");
 let charts = {};
 let allRows = [];
 let actualKeys = {};
+let showAllRecords = false;
 
 const FIELD_CANDIDATES = {
   country: ["PAIS", "PAÍS"],
@@ -144,6 +145,16 @@ function applyActiveFilters() {
   buildDashboard(filteredRows);
 }
 
+function setupRecordToggle() {
+  const toggleButton = document.getElementById("toggleRecords");
+  if (!toggleButton) return;
+
+  toggleButton.onclick = () => {
+    showAllRecords = !showAllRecords;
+    renderRecordsTable(allRows);
+  };
+}
+
 function setupFilters(rows) {
   if (!actualKeys.year) return;
 
@@ -253,18 +264,20 @@ function updateTables({ attackTypes, industries, vulnerabilities }) {
   renderTable("tableVulnerabilities", vulnerabilities);
 }
 
-function renderRecordsTable(rows, maxRows = 100) {
+function renderRecordsTable(rows) {
   const headerRow = document.getElementById("recordsHeader");
   const body = document.getElementById("recordsBody");
   const tableCount = document.getElementById("tableCount");
+  const toggleButton = document.getElementById("toggleRecords");
 
-  if (!headerRow || !body || !tableCount) return;
+  if (!headerRow || !body || !tableCount || !toggleButton) return;
 
   headerRow.innerHTML = "";
   body.innerHTML = "";
 
   if (!rows.length) {
     tableCount.textContent = "No hay registros para mostrar.";
+    toggleButton.style.display = "none";
     return;
   }
 
@@ -275,6 +288,7 @@ function renderRecordsTable(rows, maxRows = 100) {
     headerRow.appendChild(th);
   });
 
+  const maxRows = showAllRecords ? rows.length : 100;
   const limitedRows = rows.slice(0, maxRows);
   limitedRows.forEach((row) => {
     const tr = document.createElement("tr");
@@ -287,6 +301,8 @@ function renderRecordsTable(rows, maxRows = 100) {
   });
 
   tableCount.textContent = `Mostrando ${limitedRows.length} de ${rows.length} registros`;
+  toggleButton.style.display = rows.length > 100 ? "inline-flex" : "none";
+  toggleButton.textContent = showAllRecords ? "Mostrar menos" : "Mostrar todo";
 }
 
 function buildDashboard(rows) {
@@ -382,6 +398,7 @@ async function loadDefaultData() {
     allRows = rows;
     actualKeys = detectFields(rows[0] || {});
     setupFilters(rows);
+    setupRecordToggle();
     applyActiveFilters();
 
     setStatus(`Datos cargados automáticamente (${rows.length} registros)`, false);
