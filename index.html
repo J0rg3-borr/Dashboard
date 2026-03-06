@@ -24,6 +24,24 @@
       <div id="uploadStatus" class="hint"></div>
     </section>
 
+    <section class="card" id="filters">
+      <h2>Filtros</h2>
+      <div class="filters-row">
+        <div class="filter">
+          <label for="filterYear">Año</label>
+          <select id="filterYear" multiple size="4"></select>
+        </div>
+        <div class="filter">
+          <label for="filterCountry">País</label>
+          <select id="filterCountry" multiple size="4"></select>
+        </div>
+        <div class="filter actions">
+          <button id="clearFilters" type="button">Borrar filtros</button>
+          <p class="hint">(Selecciona uno o varios; deja vacío para ver todo)</p>
+        </div>
+      </div>
+    </section>
+
     <section id="kpis" class="grid"></section>
 
     <section id="charts" class="grid">

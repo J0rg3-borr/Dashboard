@@ -1,8 +1,33 @@
 const fileInput = document.getElementById("fileInput");
 const uploadStatus = document.getElementById("uploadStatus");
 const kpis = document.getElementById("kpis");
+const filterYear = document.getElementById("filterYear");
+const filterCountry = document.getElementById("filterCountry");
+const clearFiltersBtn = document.getElementById("clearFilters");
 
 let charts = {};
+let allRows = [];
+let actualKeys = {};
+
+const FIELD_CANDIDATES = {
+  country: ["PAIS", "PAÍS"],
+  year: ["ANO", "AÑO"],
+  attackType: ["TIPO DE ATAQUE"],
+  industry: ["OBJECTIVO INDUSTRIAL", "OBJETIVO INDUSTRIAL"],
+  loss: ["PERDIDA FINANCIERA"],
+  users: ["NUMEROS DE USUARIOS AFECTADOS", "NUMERO DE USUARIOS AFECTADOS"],
+  vulnerability: ["TIPO DE VULNERABILIDAD DE SEGURIDAD"],
+  defense: ["MECANISMO DE DEFENSA UTILIZADO"],
+  resolution: ["TIEMPO DE RESOLUCION DE INCIDENTE"],
+};
+
+function detectFields(sample) {
+  const found = {};
+  for (const [name, candidates] of Object.entries(FIELD_CANDIDATES)) {
+    found[name] = pickKey(sample, candidates);
+  }
+  return found;
+}
 
 function normalizeKey(key) {
   return String(key || "")
@@ -70,6 +95,57 @@ function formatNumber(value) {
   return value.toLocaleString();
 }
 
+function getSelectedOptions(select) {
+  return Array.from(select.selectedOptions).map((opt) => opt.value);
+}
+
+function buildFilterOptions(select, values) {
+  select.innerHTML = "";
+  values.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+function applyActiveFilters() {
+  const yearFilter = getSelectedOptions(filterYear);
+  const countryFilter = getSelectedOptions(filterCountry);
+
+  const filteredRows = allRows.filter((row) => {
+    const matchesYear =
+      !yearFilter.length || yearFilter.includes(String(row[actualKeys.year] ?? ""));
+    const matchesCountry =
+      !countryFilter.length || countryFilter.includes(String(row[actualKeys.country] ?? ""));
+    return matchesYear && matchesCountry;
+  });
+
+  buildDashboard(filteredRows);
+}
+
+function setupFilters(rows) {
+  if (!actualKeys.year || !actualKeys.country) return;
+
+  const years = Array.from(
+    new Set(rows.map((r) => String(r[actualKeys.year] ?? "")).filter(Boolean))
+  ).sort((a, b) => (Number(a) || 0) - (Number(b) || 0));
+  const countries = Array.from(
+    new Set(rows.map((r) => String(r[actualKeys.country] ?? "")).filter(Boolean))
+  ).sort();
+
+  buildFilterOptions(filterYear, years);
+  buildFilterOptions(filterCountry, countries);
+
+  filterYear.onchange = applyActiveFilters;
+  filterCountry.onchange = applyActiveFilters;
+  clearFiltersBtn.onclick = () => {
+    filterYear.selectedIndex = -1;
+    filterCountry.selectedIndex = -1;
+    applyActiveFilters();
+  };
+}
+
 function renderKPI(title, value) {
   const card = document.createElement("div");
   card.className = "kpi";
@@ -134,43 +210,26 @@ function setStatus(message, isError = false) {
 function buildDashboard(rows) {
   kpis.innerHTML = "";
 
-  const map = {
-    country: ["PAIS", "PAÍS"],
-    year: ["ANO", "AÑO"],
-    attackType: ["TIPO DE ATAQUE"],
-    industry: ["OBJECTIVO INDUSTRIAL", "OBJETIVO INDUSTRIAL"],
-    loss: ["PERDIDA FINANCIERA"],
-    users: ["NUMEROS DE USUARIOS AFECTADOS", "NUMERO DE USUARIOS AFECTADOS"],
-    vulnerability: ["TIPO DE VULNERABILIDAD DE SEGURIDAD"],
-    defense: ["MECANISMO DE DEFENSA UTILIZADO"],
-    resolution: ["TIEMPO DE RESOLUCION DE INCIDENTE"],
-  };
-
   const sample = rows[0] || {};
-  const keys = Object.keys(sample);
-
-  const actual = {};
-  for (const [name, candidates] of Object.entries(map)) {
-    actual[name] = pickKey(sample, candidates);
-  }
+  actualKeys = detectFields(sample);
 
   const totalIncidents = rows.length;
-  const totalUsers = sumBy(rows, actual.users);
-  const totalLoss = sumBy(rows, actual.loss);
-  const avgResolution = averageBy(rows, actual.resolution);
+  const totalUsers = sumBy(rows, actualKeys.users);
+  const totalLoss = sumBy(rows, actualKeys.loss);
+  const avgResolution = averageBy(rows, actualKeys.resolution);
 
   kpis.appendChild(renderKPI("Total de incidentes", formatNumber(totalIncidents)));
   kpis.appendChild(renderKPI("Usuarios afectados (total)", formatNumber(totalUsers)));
   kpis.appendChild(renderKPI("Pérdidas financieras", `$${formatNumber(totalLoss)}`));
   kpis.appendChild(renderKPI("Resolución promedio (días)", `${avgResolution.toFixed(1)} días`));
 
-  const countries = groupBy(rows, actual.country).slice(0, 12);
-  const attacks = groupBy(rows, actual.attackType).slice(0, 12);
-  const industries = groupBy(rows, actual.industry).slice(0, 12);
-  const vulns = groupBy(rows, actual.vulnerability).slice(0, 12);
-  const defenses = groupBy(rows, actual.defense).slice(0, 12);
+  const countries = groupBy(rows, actualKeys.country).slice(0, 12);
+  const attacks = groupBy(rows, actualKeys.attackType).slice(0, 12);
+  const industries = groupBy(rows, actualKeys.industry).slice(0, 12);
+  const vulns = groupBy(rows, actualKeys.vulnerability).slice(0, 12);
+  const defenses = groupBy(rows, actualKeys.defense).slice(0, 12);
 
-  const years = groupBy(rows, actual.year)
+  const years = groupBy(rows, actualKeys.year)
     .map((item) => ({ ...item, label: String(item.label) }))
     .sort((a, b) => Number(a.label) - Number(b.label));
 
@@ -287,7 +346,10 @@ fileInput.addEventListener("change", async (event) => {
       return;
     }
 
-    buildDashboard(rows);
+    allRows = rows;
+    actualKeys = detectFields(rows[0] || {});
+    setupFilters(rows);
+    applyActiveFilters();
   } catch (error) {
     console.error(error);
     setStatus("Error leyendo el archivo. Asegúrate de que sea un Excel válido.", true);
