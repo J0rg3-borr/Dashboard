@@ -253,6 +253,42 @@ function updateTables({ attackTypes, industries, vulnerabilities }) {
   renderTable("tableVulnerabilities", vulnerabilities);
 }
 
+function renderRecordsTable(rows, maxRows = 100) {
+  const headerRow = document.getElementById("recordsHeader");
+  const body = document.getElementById("recordsBody");
+  const tableCount = document.getElementById("tableCount");
+
+  if (!headerRow || !body || !tableCount) return;
+
+  headerRow.innerHTML = "";
+  body.innerHTML = "";
+
+  if (!rows.length) {
+    tableCount.textContent = "No hay registros para mostrar.";
+    return;
+  }
+
+  const keys = Object.keys(rows[0]);
+  keys.forEach((key) => {
+    const th = document.createElement("th");
+    th.textContent = key;
+    headerRow.appendChild(th);
+  });
+
+  const limitedRows = rows.slice(0, maxRows);
+  limitedRows.forEach((row) => {
+    const tr = document.createElement("tr");
+    keys.forEach((key) => {
+      const td = document.createElement("td");
+      td.textContent = row[key] ?? "";
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  tableCount.textContent = `Mostrando ${limitedRows.length} de ${rows.length} registros`;
+}
+
 function buildDashboard(rows) {
   kpis.innerHTML = "";
 
@@ -293,6 +329,8 @@ function buildDashboard(rows) {
     industries,
     vulnerabilities: vulns,
   });
+
+  renderRecordsTable(rows);
 
   setStatus(`Datos cargados: ${totalIncidents} registros`, false);
 }

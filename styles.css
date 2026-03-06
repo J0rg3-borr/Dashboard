@@ -80,6 +80,44 @@ main {
   margin-top: 1rem;
 }
 
+.table-meta {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.table-scroll {
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(203, 213, 225, 0.12);
+  border-radius: 10px;
+}
+
+#recordsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#recordsTable thead th {
+  padding: 0.6rem 0.6rem;
+  background: rgba(28, 33, 40, 0.9);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.2);
+  text-align: left;
+  font-weight: 600;
+  color: rgba(203, 213, 225, 0.9);
+}
+
+#recordsTable tbody td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.08);
+  font-size: 0.85rem;
+}
+
+#recordsTable tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .table-card {
   background: rgba(19, 24, 30, 0.9);
   border: 1px solid rgba(203, 213, 225, 0.12);
