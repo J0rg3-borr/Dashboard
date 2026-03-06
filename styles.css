@@ -45,11 +45,39 @@ main {
   padding: 0 1.25rem;
 }
 
+.app-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.sidebar {
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .card {
@@ -161,6 +189,63 @@ footer {
   padding: 1rem 1.25rem 2rem;
   text-align: center;
   color: rgba(203, 213, 225, 0.75);
+  border-top: 1px solid rgba(203, 213, 225, 0.08);
+}
+
+.panel {
+  background: rgba(19, 24, 30, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.12);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.26);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+.panel-subtitle {
+  margin: 0.25rem 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.panel-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: 14px;
+  background: linear-gradient(140deg, rgba(56, 161, 255, 0.45), rgba(0, 0, 0, 0.15));
+  border: 1px solid rgba(223, 234, 255, 0.15);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.25);
+}
+
+.kpi-title {
+  font-size: 0.85rem;
+  color: rgba(203, 213, 225, 0.85);
+}
+
+.kpi-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 0.3rem;
 }
 
 code {

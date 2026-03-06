@@ -121,6 +121,7 @@ function applyActiveFilters() {
     return matchesYear && matchesCountry;
   });
 
+  updateMetadata(filteredRows);
   buildDashboard(filteredRows);
 }
 
@@ -205,6 +206,13 @@ function updateCharts(configs) {
 function setStatus(message, isError = false) {
   uploadStatus.textContent = message;
   uploadStatus.style.color = isError ? "#f87171" : "#8b949e";
+}
+
+function updateMetadata(rows) {
+  const recordCount = document.getElementById("recordCount");
+  const lastLoaded = document.getElementById("lastLoaded");
+  if (recordCount) recordCount.textContent = `${rows.length.toLocaleString()} registros`;
+  if (lastLoaded) lastLoaded.textContent = new Date().toLocaleString();
 }
 
 function buildDashboard(rows) {
@@ -371,6 +379,7 @@ async function loadDefaultData() {
     applyActiveFilters();
 
     setStatus(`Datos cargados automáticamente (${rows.length} registros)`, false);
+    updateMetadata(rows);
   } catch (error) {
     console.warn("No se cargó data.json:", error);
     setStatus("Carga un archivo Excel para comenzar.", false);

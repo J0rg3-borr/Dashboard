@@ -16,68 +16,77 @@
     <p class="subtitle">Datos pre-cargados del archivo. Puedes cargar tu propio Excel si deseas.</p>
   </header>
 
-  <main>
-    <section class="card" id="upload">
-      <h2>1) Cargar datos</h2>
-      <p>Selecciona el archivo Excel con tus incidentes para generar el dashboard.</p>
-      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
-      <div id="uploadStatus" class="hint"></div>
-    </section>
-
-    <section class="card" id="filters">
-      <h2>Filtros</h2>
-      <div class="filters-row">
-        <div class="filter">
-          <label for="filterYear">Año</label>
-          <select id="filterYear" multiple size="4"></select>
+  <main class="app-layout">
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>Datos</h2>
+        <p class="panel-subtitle">Origen del dataset</p>
+        <div class="panel-row">
+          <strong>Archivo:</strong> <br />
+          <span class="panel-mono">Global_Cybersecurity_Threats_2015-2024.xlsx</span>
         </div>
-        <div class="filter">
-          <label for="filterCountry">País</label>
-          <select id="filterCountry" multiple size="4"></select>
+        <div class="panel-row">
+          <strong>Registros:</strong> <span id="recordCount">—</span>
+        </div>
+        <div class="panel-row">
+          <strong>Última carga:</strong> <span id="lastLoaded">—</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Archivo</h2>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <div id="uploadStatus" class="hint"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Filtros</h2>
+        <div class="filters-row">
+          <div class="filter">
+            <label for="filterYear">Año</label>
+            <select id="filterYear" multiple size="4"></select>
+          </div>
+          <div class="filter">
+            <label for="filterCountry">País</label>
+            <select id="filterCountry" multiple size="4"></select>
+          </div>
         </div>
         <div class="filter actions">
           <button id="clearFilters" type="button">Borrar filtros</button>
           <p class="hint">(Selecciona uno o varios; deja vacío para ver todo)</p>
         </div>
       </div>
-    </section>
+    </aside>
 
-    <section id="kpis" class="grid"></section>
+    <section class="main-content">
+      <div id="kpis" class="kpi-row"></div>
 
-    <section id="charts" class="grid">
-      <div class="card">
-        <h2>Países más atacados</h2>
-        <canvas id="chartCountries"></canvas>
-      </div>
-      <div class="card">
-        <h2>Tipos de ataque</h2>
-        <canvas id="chartAttackTypes"></canvas>
-      </div>
-      <div class="card">
-        <h2>Sectores industriales</h2>
-        <canvas id="chartIndustry"></canvas>
-      </div>
-      <div class="card">
-        <h2>Vulnerabilidades explotadas</h2>
-        <canvas id="chartVulnerabilities"></canvas>
-      </div>
-      <div class="card">
-        <h2>Mecanismos de defensa</h2>
-        <canvas id="chartDefense"></canvas>
-      </div>
-      <div class="card">
-        <h2>Evolución anual de incidentes</h2>
-        <canvas id="chartYears"></canvas>
-      </div>
-    </section>
-
-    <section class="card" id="notes">
-      <h2>Cómo usar</h2>
-      <ul>
-        <li>Arrastra o selecciona tu archivo Excel con los datos de incidentes.</li>
-        <li>El tablero generará automáticamente los cálculos y gráficos.</li>
-        <li>Si tienes dudas, vuelve a cargar tu archivo para asegurar que las columnas coincidan con los datos esperado.</li>
-      </ul>
+      <section id="charts" class="grid">
+        <div class="card">
+          <h2>Países más atacados</h2>
+          <canvas id="chartCountries"></canvas>
+        </div>
+        <div class="card">
+          <h2>Tipos de ataque</h2>
+          <canvas id="chartAttackTypes"></canvas>
+        </div>
+        <div class="card">
+          <h2>Sectores industriales</h2>
+          <canvas id="chartIndustry"></canvas>
+        </div>
+        <div class="card">
+          <h2>Vulnerabilidades explotadas</h2>
+          <canvas id="chartVulnerabilities"></canvas>
+        </div>
+        <div class="card">
+          <h2>Mecanismos de defensa</h2>
+          <canvas id="chartDefense"></canvas>
+        </div>
+        <div class="card">
+          <h2>Evolución anual de incidentes</h2>
+          <canvas id="chartYears"></canvas>
+        </div>
+      </section>
     </section>
   </main>
 
