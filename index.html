@@ -44,16 +44,12 @@
         <div class="filters-row">
           <div class="filter">
             <label for="filterYear">Año</label>
-            <select id="filterYear" multiple size="4"></select>
-          </div>
-          <div class="filter">
-            <label for="filterCountry">País</label>
-            <select id="filterCountry" multiple size="4"></select>
+            <select id="filterYear"></select>
           </div>
         </div>
         <div class="filter actions">
-          <button id="clearFilters" type="button">Borrar filtros</button>
-          <p class="hint">(Selecciona uno o varios; deja vacío para ver todo)</p>
+          <button id="clearFilters" type="button">Borrar filtro</button>
+          <p class="hint">(Elige un año para actualizar el gráfico y las tablas)</p>
         </div>
       </div>
     </aside>
@@ -66,25 +62,38 @@
           <h2>Países más atacados</h2>
           <canvas id="chartCountries"></canvas>
         </div>
-        <div class="card">
-          <h2>Tipos de ataque</h2>
-          <canvas id="chartAttackTypes"></canvas>
-        </div>
-        <div class="card">
-          <h2>Sectores industriales</h2>
-          <canvas id="chartIndustry"></canvas>
-        </div>
-        <div class="card">
-          <h2>Vulnerabilidades explotadas</h2>
-          <canvas id="chartVulnerabilities"></canvas>
-        </div>
-        <div class="card">
-          <h2>Mecanismos de defensa</h2>
-          <canvas id="chartDefense"></canvas>
-        </div>
-        <div class="card">
-          <h2>Evolución anual de incidentes</h2>
-          <canvas id="chartYears"></canvas>
+      </section>
+
+      <section class="card" id="tables">
+        <h2>Resumen de categorías</h2>
+        <div class="table-row">
+          <div class="table-card">
+            <h3>Tipos de ataque</h3>
+            <table id="tableAttackTypes">
+              <thead>
+                <tr><th>Tipo de ataque</th><th>Incidentes</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-card">
+            <h3>Sectores industriales</h3>
+            <table id="tableIndustry">
+              <thead>
+                <tr><th>Sector</th><th>Incidentes</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-card">
+            <h3>Vulnerabilidades</h3>
+            <table id="tableVulnerabilities">
+              <thead>
+                <tr><th>Vulnerabilidad</th><th>Incidentes</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </section>

@@ -73,10 +73,57 @@ main {
   gap: 1rem;
 }
 
-.grid {
+.table-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
+}
+
+.table-card {
+  background: rgba(19, 24, 30, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.12);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.table-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.2);
+  color: rgba(203, 213, 225, 0.8);
+}
+
+tbody td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.08);
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 840px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+}
   margin-top: 0;
 }
 
@@ -112,9 +159,7 @@ input[type="file"] {
 
 .filters-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  align-items: flex-start;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .filter {

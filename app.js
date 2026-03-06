@@ -2,7 +2,6 @@ const fileInput = document.getElementById("fileInput");
 const uploadStatus = document.getElementById("uploadStatus");
 const kpis = document.getElementById("kpis");
 const filterYear = document.getElementById("filterYear");
-const filterCountry = document.getElementById("filterCountry");
 const clearFiltersBtn = document.getElementById("clearFilters");
 
 let charts = {};
@@ -95,12 +94,20 @@ function formatNumber(value) {
   return value.toLocaleString();
 }
 
-function getSelectedOptions(select) {
-  return Array.from(select.selectedOptions).map((opt) => opt.value);
+function getSelectedValue(select) {
+  return select.value;
 }
 
-function buildFilterOptions(select, values) {
+function buildFilterOptions(select, values, includeAll = true) {
   select.innerHTML = "";
+
+  if (includeAll) {
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = "Todos";
+    select.appendChild(allOption);
+  }
+
   values.forEach((value) => {
     const option = document.createElement("option");
     option.value = value;
@@ -110,15 +117,11 @@ function buildFilterOptions(select, values) {
 }
 
 function applyActiveFilters() {
-  const yearFilter = getSelectedOptions(filterYear);
-  const countryFilter = getSelectedOptions(filterCountry);
+  const year = getSelectedValue(filterYear);
 
   const filteredRows = allRows.filter((row) => {
-    const matchesYear =
-      !yearFilter.length || yearFilter.includes(String(row[actualKeys.year] ?? ""));
-    const matchesCountry =
-      !countryFilter.length || countryFilter.includes(String(row[actualKeys.country] ?? ""));
-    return matchesYear && matchesCountry;
+    if (!year) return true;
+    return String(row[actualKeys.year] ?? "") === year;
   });
 
   updateMetadata(filteredRows);
@@ -126,23 +129,17 @@ function applyActiveFilters() {
 }
 
 function setupFilters(rows) {
-  if (!actualKeys.year || !actualKeys.country) return;
+  if (!actualKeys.year) return;
 
   const years = Array.from(
     new Set(rows.map((r) => String(r[actualKeys.year] ?? "")).filter(Boolean))
   ).sort((a, b) => (Number(a) || 0) - (Number(b) || 0));
-  const countries = Array.from(
-    new Set(rows.map((r) => String(r[actualKeys.country] ?? "")).filter(Boolean))
-  ).sort();
 
   buildFilterOptions(filterYear, years);
-  buildFilterOptions(filterCountry, countries);
 
   filterYear.onchange = applyActiveFilters;
-  filterCountry.onchange = applyActiveFilters;
   clearFiltersBtn.onclick = () => {
-    filterYear.selectedIndex = -1;
-    filterCountry.selectedIndex = -1;
+    filterYear.value = "";
     applyActiveFilters();
   };
 }
@@ -215,6 +212,31 @@ function updateMetadata(rows) {
   if (lastLoaded) lastLoaded.textContent = new Date().toLocaleString();
 }
 
+function renderTable(tableId, items) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  items.forEach((item) => {
+    const tr = document.createElement("tr");
+    const tdLabel = document.createElement("td");
+    const tdValue = document.createElement("td");
+
+    tdLabel.textContent = item.label;
+    tdValue.textContent = item.value.toLocaleString();
+
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdValue);
+    tbody.appendChild(tr);
+  });
+}
+
+function updateTables({ attackTypes, industries, vulnerabilities }) {
+  renderTable("tableAttackTypes", attackTypes);
+  renderTable("tableIndustry", industries);
+  renderTable("tableVulnerabilities", vulnerabilities);
+}
+
 function buildDashboard(rows) {
   kpis.innerHTML = "";
 
@@ -232,14 +254,9 @@ function buildDashboard(rows) {
   kpis.appendChild(renderKPI("Resolución promedio (días)", `${avgResolution.toFixed(1)} días`));
 
   const countries = groupBy(rows, actualKeys.country).slice(0, 12);
-  const attacks = groupBy(rows, actualKeys.attackType).slice(0, 12);
-  const industries = groupBy(rows, actualKeys.industry).slice(0, 12);
-  const vulns = groupBy(rows, actualKeys.vulnerability).slice(0, 12);
-  const defenses = groupBy(rows, actualKeys.defense).slice(0, 12);
-
-  const years = groupBy(rows, actualKeys.year)
-    .map((item) => ({ ...item, label: String(item.label) }))
-    .sort((a, b) => Number(a.label) - Number(b.label));
+  const attacks = groupBy(rows, actualKeys.attackType).slice(0, 10);
+  const industries = groupBy(rows, actualKeys.industry).slice(0, 10);
+  const vulns = groupBy(rows, actualKeys.vulnerability).slice(0, 10);
 
   updateCharts({
     countries: {
@@ -253,79 +270,12 @@ function buildDashboard(rows) {
         borderColor: "rgba(88, 166, 255, 1)",
       },
     },
-    attackTypes: {
-      canvasId: "chartAttackTypes",
-      type: "bar",
-      data: {
-        label: "Incidentes",
-        labels: attacks.map((c) => c.label),
-        values: attacks.map((c) => c.value),
-        backgroundColor: "rgba(88, 255, 194, 0.7)",
-        borderColor: "rgba(88, 255, 194, 1)",
-      },
-    },
-    industry: {
-      canvasId: "chartIndustry",
-      type: "bar",
-      data: {
-        label: "Incidentes",
-        labels: industries.map((c) => c.label),
-        values: industries.map((c) => c.value),
-        backgroundColor: "rgba(255, 170, 88, 0.7)",
-        borderColor: "rgba(255, 170, 88, 1)",
-      },
-    },
-    vulnerabilities: {
-      canvasId: "chartVulnerabilities",
-      type: "bar",
-      data: {
-        label: "Incidentes",
-        labels: vulns.map((c) => c.label),
-        values: vulns.map((c) => c.value),
-        backgroundColor: "rgba(255, 88, 181, 0.7)",
-        borderColor: "rgba(255, 88, 181, 1)",
-      },
-    },
-    defense: {
-      canvasId: "chartDefense",
-      type: "bar",
-      data: {
-        label: "Incidentes",
-        labels: defenses.map((c) => c.label),
-        values: defenses.map((c) => c.value),
-        backgroundColor: "rgba(134, 89, 255, 0.7)",
-        borderColor: "rgba(134, 89, 255, 1)",
-      },
-    },
-    years: {
-      canvasId: "chartYears",
-      type: "line",
-      data: {
-        label: "Incidentes por año",
-        labels: years.map((c) => c.label),
-        values: years.map((c) => c.value),
-        backgroundColor: "rgba(64, 255, 146, 0.3)",
-        borderColor: "rgba(64, 255, 146, 1)",
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: "#c9d1d9" },
-            grid: { color: "rgba(203, 213, 225, 0.1)" },
-          },
-          x: {
-            ticks: { color: "#c9d1d9" },
-            grid: { color: "rgba(203, 213, 225, 0.08)" },
-          },
-        },
-      },
-    },
+  });
+
+  updateTables({
+    attackTypes: attacks,
+    industries,
+    vulnerabilities: vulns,
   });
 
   setStatus(`Datos cargados: ${totalIncidents} registros`, false);
