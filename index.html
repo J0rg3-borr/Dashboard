@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Ciberataques</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- SheetJS (xlsx) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.2/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Dashboard de Ciberataques</h1>
+    <p class="subtitle">Carga tu Excel y visualiza los indicadores clave en segundos.</p>
+  </header>
+
+  <main>
+    <section class="card" id="upload">
+      <h2>1) Cargar datos</h2>
+      <p>Selecciona el archivo Excel con tus incidentes para generar el dashboard.</p>
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+      <div id="uploadStatus" class="hint"></div>
+    </section>
+
+    <section id="kpis" class="grid"></section>
+
+    <section id="charts" class="grid">
+      <div class="card">
+        <h2>Países más atacados</h2>
+        <canvas id="chartCountries"></canvas>
+      </div>
+      <div class="card">
+        <h2>Tipos de ataque</h2>
+        <canvas id="chartAttackTypes"></canvas>
+      </div>
+      <div class="card">
+        <h2>Sectores industriales</h2>
+        <canvas id="chartIndustry"></canvas>
+      </div>
+      <div class="card">
+        <h2>Vulnerabilidades explotadas</h2>
+        <canvas id="chartVulnerabilities"></canvas>
+      </div>
+      <div class="card">
+        <h2>Mecanismos de defensa</h2>
+        <canvas id="chartDefense"></canvas>
+      </div>
+      <div class="card">
+        <h2>Evolución anual de incidentes</h2>
+        <canvas id="chartYears"></canvas>
+      </div>
+    </section>
+
+    <section class="card" id="notes">
+      <h2>Cómo usar</h2>
+      <ul>
+        <li>Arrastra o selecciona tu archivo Excel con los datos de incidentes.</li>
+        <li>El tablero generará automáticamente los cálculos y gráficos.</li>
+        <li>Si tienes dudas, vuelve a cargar tu archivo para asegurar que las columnas coincidan con los datos esperado.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Deploy sugerido: sube esta carpeta a Vercel como un sitio estático (<code>index.html</code>)</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
