@@ -13,7 +13,14 @@ const FIELD_CANDIDATES = {
   year: ["ANO", "AÑO"],
   attackType: ["TIPO DE ATAQUE"],
   industry: ["OBJECTIVO INDUSTRIAL", "OBJETIVO INDUSTRIAL"],
-  loss: ["PERDIDA FINANCIERA"],
+  loss: [
+    "PERDIDA FINANCIERA",
+    "PERDIDA FINANCIERA (IN MILLION $)",
+    "PERDIDA FINANCIERA  (IN MILLION $)",
+    "PERDIDA FINANCIERA (IN MILLONES $)",
+    "PERDIDA FINANCIERA (IN MILLONES)",
+    "PERDIDA FINANCIERA ($)",
+  ],
   users: ["NUMEROS DE USUARIOS AFECTADOS", "NUMERO DE USUARIOS AFECTADOS"],
   vulnerability: ["TIPO DE VULNERABILIDAD DE SEGURIDAD"],
   defense: ["MECANISMO DE DEFENSA UTILIZADO"],
@@ -92,6 +99,15 @@ function formatNumber(value) {
   if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
   if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
   return value.toLocaleString();
+}
+
+function formatCurrency(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  if (Math.abs(n) >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+  if (Math.abs(n) >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (Math.abs(n) >= 1e3) return `$${(n / 1e3).toFixed(1)}K`;
+  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 }
 
 function getSelectedValue(select) {
@@ -249,9 +265,9 @@ function buildDashboard(rows) {
   const avgResolution = averageBy(rows, actualKeys.resolution);
 
   kpis.appendChild(renderKPI("Total de incidentes", formatNumber(totalIncidents)));
-  kpis.appendChild(renderKPI("Usuarios afectados (total)", formatNumber(totalUsers)));
-  kpis.appendChild(renderKPI("Pérdidas financieras", `$${formatNumber(totalLoss)}`));
-  kpis.appendChild(renderKPI("Resolución promedio (días)", `${avgResolution.toFixed(1)} días`));
+  kpis.appendChild(renderKPI("Usuarios afectados", formatNumber(totalUsers)));
+  kpis.appendChild(renderKPI("Pérdidas financieras", formatCurrency(totalLoss)));
+  kpis.appendChild(renderKPI("Tiempo promedio de resolución", `${avgResolution.toFixed(1)} días`));
 
   const countries = groupBy(rows, actualKeys.country).slice(0, 12);
   const attacks = groupBy(rows, actualKeys.attackType).slice(0, 10);
@@ -288,31 +304,33 @@ function parseWorkbook(workbook) {
   return data;
 }
 
-fileInput.addEventListener("change", async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+if (fileInput) {
+  fileInput.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  setStatus("Cargando...", false);
+    setStatus("Cargando...", false);
 
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-    const rows = parseWorkbook(workbook);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      const rows = parseWorkbook(workbook);
 
-    if (!rows.length) {
-      setStatus("No se detectaron filas en el archivo.", true);
-      return;
+      if (!rows.length) {
+        setStatus("No se detectaron filas en el archivo.", true);
+        return;
+      }
+
+      allRows = rows;
+      actualKeys = detectFields(rows[0] || {});
+      setupFilters(rows);
+      applyActiveFilters();
+    } catch (error) {
+      console.error(error);
+      setStatus("Error leyendo el archivo. Asegúrate de que sea un Excel válido.", true);
     }
-
-    allRows = rows;
-    actualKeys = detectFields(rows[0] || {});
-    setupFilters(rows);
-    applyActiveFilters();
-  } catch (error) {
-    console.error(error);
-    setStatus("Error leyendo el archivo. Asegúrate de que sea un Excel válido.", true);
-  }
-});
+  });
+}
 
 setStatus("Cargando datos pre-cargados...");
 
@@ -332,7 +350,7 @@ async function loadDefaultData() {
     updateMetadata(rows);
   } catch (error) {
     console.warn("No se cargó data.json:", error);
-    setStatus("Carga un archivo Excel para comenzar.", false);
+    setStatus("No se pudieron cargar los datos automáticos.", true);
   }
 }
 
