@@ -28,6 +28,42 @@ const FIELD_CANDIDATES = {
   resolution: ["TIEMPO DE RESOLUCION DE INCIDENTE"],
 };
 
+const sectorIndustriaEs = {
+  IT: "Tecnología",
+  Banking: "Banca",
+  Healthcare: "Salud",
+  Retail: "Comercio",
+  Education: "Educación",
+  Telecommunications: "Telecomunicaciones",
+  Government: "Gobierno",
+  Manufacturing: "Manufactura",
+  Energy: "Energía",
+  Technology: "Tecnología",
+  Transportation: "Transporte",
+  Construction: "Construcción",
+  Agriculture: "Agricultura",
+};
+
+const vulnerabilidadEs = {
+  "Zero-day": "Zero-day",
+  "Social Engineering": "Ingeniería social",
+  "Unpatched Software": "Software sin parchear",
+  "Weak Passwords": "Contraseñas débiles",
+  Physical: "Físicas",
+  Cyber: "Cibernéticas",
+  Operational: "Operativas",
+  Environmental: "Ambientales",
+  "Supply chain": "Cadena de suministro",
+};
+
+function traducirSectorIndustria(nombre) {
+  return sectorIndustriaEs[nombre] ?? nombre;
+}
+
+function traducirVulnerabilidad(nombre) {
+  return vulnerabilidadEs[nombre] ?? nombre;
+}
+
 function detectFields(sample) {
   const found = {};
   for (const [name, candidates] of Object.entries(FIELD_CANDIDATES)) {
@@ -323,8 +359,12 @@ function buildDashboard(rows) {
 
   const countries = groupBy(rows, actualKeys.country).slice(0, 12);
   const attacks = groupBy(rows, actualKeys.attackType).slice(0, 10);
-  const industries = groupBy(rows, actualKeys.industry).slice(0, 10);
-  const vulns = groupBy(rows, actualKeys.vulnerability).slice(0, 10);
+  const industries = groupBy(rows, actualKeys.industry)
+    .slice(0, 10)
+    .map((item) => ({ ...item, label: traducirSectorIndustria(item.label) }));
+  const vulns = groupBy(rows, actualKeys.vulnerability)
+    .slice(0, 10)
+    .map((item) => ({ ...item, label: traducirVulnerabilidad(item.label) }));
 
   updateCharts({
     countries: {
