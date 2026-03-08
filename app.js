@@ -47,13 +47,8 @@ const sectorIndustriaEs = {
 const vulnerabilidadEs = {
   "Zero-day": "Zero-day",
   "Social Engineering": "Ingeniería social",
-  "Unpatched Software": "Software sin parchear",
+  "Unpatched Software": "Software sin Actualizar",
   "Weak Passwords": "Contraseñas débiles",
-  Physical: "Físicas",
-  Cyber: "Cibernéticas",
-  Operational: "Operativas",
-  Environmental: "Ambientales",
-  "Supply chain": "Cadena de suministro",
 };
 
 function traducirSectorIndustria(nombre) {
@@ -62,6 +57,23 @@ function traducirSectorIndustria(nombre) {
 
 function traducirVulnerabilidad(nombre) {
   return vulnerabilidadEs[nombre] ?? nombre;
+}
+
+const defensaEs = {
+  "Firewall": "Cortafuegos",
+  "Antivirus": "Antivirus",
+  "IDS": "IDS",
+  "IPS": "IPS",
+  "Multi-factor Authentication": "Autenticación multifactor",
+  "MFA": "MFA",
+  "Encryption": "Encriptación",
+  "Backups": "Copias de seguridad",
+  "Monitoring": "Monitoreo",
+  "Segmentation": "Segmentación",
+};
+
+function traducirDefensa(nombre) {
+  return defensaEs[nombre] ?? nombre;
 }
 
 function detectFields(sample) {
@@ -294,10 +306,11 @@ function renderTable(tableId, items) {
   });
 }
 
-function updateTables({ attackTypes, industries, vulnerabilities }) {
+function updateTables({ attackTypes, industries, vulnerabilities, defenses }) {
   renderTable("tableAttackTypes", attackTypes);
   renderTable("tableIndustry", industries);
   renderTable("tableVulnerabilities", vulnerabilities);
+  renderTable("tableDefense", defenses);
 }
 
 function renderRecordsTable(rows) {
@@ -365,6 +378,11 @@ function buildDashboard(rows) {
   const vulns = groupBy(rows, actualKeys.vulnerability)
     .slice(0, 10)
     .map((item) => ({ ...item, label: traducirVulnerabilidad(item.label) }));
+  const defenses = actualKeys.defense
+    ? groupBy(rows, actualKeys.defense)
+        .slice(0, 10)
+        .map((item) => ({ ...item, label: traducirDefensa(item.label) }))
+    : [];
 
   updateCharts({
     countries: {
@@ -384,6 +402,7 @@ function buildDashboard(rows) {
     attackTypes: attacks,
     industries,
     vulnerabilities: vulns,
+    defenses,
   });
 
   renderRecordsTable(rows);
