@@ -249,10 +249,19 @@ function updateCharts(configs) {
     const canvas = document.getElementById(cfg.canvasId);
     if (!canvas) continue;
 
+    // Destruir gráfico anterior si existe
     if (charts[key]) {
       charts[key].destroy();
+      charts[key] = null;
     }
 
+    // Limpiar canvas completamente
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Crear nuevo gráfico con la configuración
     charts[key] = new Chart(canvas, {
       type: cfg.type,
       data: {
