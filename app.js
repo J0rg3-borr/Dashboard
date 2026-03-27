@@ -121,6 +121,21 @@ function groupBy(rows, key) {
     .map(([label, value]) => ({ label, value }));
 }
 
+function sumGroupedBy(rows, groupKey, valueKey) {
+  const results = new Map();
+  for (const row of rows) {
+    const group = String(row[groupKey] ?? "").trim();
+    if (!group) continue;
+    const raw = row[valueKey];
+    const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[^0-9.\-]/g, ""));
+    if (!Number.isFinite(n)) continue;
+    results.set(group, (results.get(group) || 0) + n);
+  }
+  return Array.from(results.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value]) => ({ label, value }));
+}
+
 function sumBy(rows, key) {
   return rows.reduce((sum, row) => {
     const raw = row[key];
@@ -364,10 +379,12 @@ function buildDashboard(rows) {
   const totalUsers = sumBy(rows, actualKeys.users);
   const totalLoss = sumBy(rows, actualKeys.loss);
   const avgResolution = averageBy(rows, actualKeys.resolution);
+  const avgLossPerIncident = totalIncidents ? totalLoss / totalIncidents : 0;
 
   kpis.appendChild(renderKPI("Total de incidentes", formatNumber(totalIncidents)));
   kpis.appendChild(renderKPI("Usuarios afectados", formatNumber(totalUsers)));
   kpis.appendChild(renderKPI("Pérdidas financieras", formatCurrency(totalLoss)));
+  kpis.appendChild(renderKPI("Pérdida promedio/incidente", formatCurrency(avgLossPerIncident)));
   kpis.appendChild(renderKPI("Tiempo promedio de resolución", `${avgResolution.toFixed(1)} días`));
 
   const countries = groupBy(rows, actualKeys.country).slice(0, 12);
@@ -375,6 +392,10 @@ function buildDashboard(rows) {
   const industries = groupBy(rows, actualKeys.industry)
     .slice(0, 10)
     .map((item) => ({ ...item, label: traducirSectorIndustria(item.label) }));
+  const lossByIndustry = actualKeys.industry && actualKeys.loss ? sumGroupedBy(rows, actualKeys.industry, actualKeys.loss).slice(0, 10) : [];
+  const lossPieLabels = lossByIndustry.map((item) => traducirSectorIndustria(item.label));
+  const lossPieValues = lossByIndustry.map((item) => item.value);
+
   const vulns = groupBy(rows, actualKeys.vulnerability)
     .slice(0, 10)
     .map((item) => ({ ...item, label: traducirVulnerabilidad(item.label) }));
@@ -394,6 +415,36 @@ function buildDashboard(rows) {
         values: countries.map((c) => c.value),
         backgroundColor: "rgba(88, 166, 255, 0.7)",
         borderColor: "rgba(88, 166, 255, 1)",
+      },
+    },
+    lossByIndustry: {
+      canvasId: "chartLossByIndustry",
+      type: "pie",
+      data: {
+        label: "Pérdidas por sector",
+        labels: lossPieLabels,
+        values: lossPieValues,
+        backgroundColor: [
+          "rgba(88, 166, 255, 0.7)",
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(255, 205, 86, 0.7)",
+          "rgba(255, 99, 132, 0.7)",
+          "rgba(153, 102, 255, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(201, 203, 207, 0.7)",
+          "rgba(255, 159, 64, 0.7)",
+          "rgba(131, 58, 180, 0.7)",
+          "rgba(75, 0, 130, 0.7)",
+        ],
+        borderColor: "rgba(255, 255, 255, 0.8)",
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: "bottom", labels: { color: "#c9d1d9" } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}` } },
+        },
       },
     },
   });
