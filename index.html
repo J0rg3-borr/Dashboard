@@ -20,7 +20,30 @@
     <aside class="sidebar">
       <div class="panel">
         <h2>Datos</h2>
+        <input id="fileInput" type="file" accept=".xlsx,.xls" />
         <div id="uploadStatus" class="hint"></div>
+        <div id="dataSummary" class="data-summary">
+          <div class="summary-item">
+            <span>Registros</span>
+            <strong id="summaryRecords">0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Usuarios afectados</span>
+            <strong id="summaryUsers">0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Pérdidas</span>
+            <strong id="summaryLoss">$0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Promedio resolución</span>
+            <strong id="summaryResolution">0 días</strong>
+          </div>
+          <div class="summary-item">
+            <span>Última actualización</span>
+            <strong id="lastLoaded">-</strong>
+          </div>
+        </div>
       </div>
 
       <div class="panel">

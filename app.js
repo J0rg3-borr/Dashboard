@@ -305,9 +305,20 @@ function setStatus(message, isError = false) {
 }
 
 function updateMetadata(rows) {
-  const recordCount = document.getElementById("recordCount");
+  const summaryRecords = document.getElementById("summaryRecords");
+  const summaryUsers = document.getElementById("summaryUsers");
+  const summaryLoss = document.getElementById("summaryLoss");
+  const summaryResolution = document.getElementById("summaryResolution");
   const lastLoaded = document.getElementById("lastLoaded");
-  if (recordCount) recordCount.textContent = `${rows.length.toLocaleString()} registros`;
+
+  const totalUsers = sumBy(rows, actualKeys.users);
+  const totalLoss = sumBy(rows, actualKeys.loss);
+  const avgResolution = averageBy(rows, actualKeys.resolution);
+
+  if (summaryRecords) summaryRecords.textContent = rows.length.toLocaleString();
+  if (summaryUsers) summaryUsers.textContent = formatNumber(totalUsers);
+  if (summaryLoss) summaryLoss.textContent = formatCurrency(totalLoss);
+  if (summaryResolution) summaryResolution.textContent = `${avgResolution.toFixed(1)} días`;
   if (lastLoaded) lastLoaded.textContent = new Date().toLocaleString();
 }
 
