@@ -482,9 +482,15 @@ function buildDashboard(rows) {
 }
 
 function parseWorkbook(workbook) {
-  const sheetName = workbook.SheetNames[0];
+  const targetSheetName = workbook.SheetNames.find((name) =>
+    String(name).trim().toLowerCase() === "datos"
+  );
+  const sheetName = targetSheetName || workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   const data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+  if (!targetSheetName && workbook.SheetNames.length > 1) {
+    setStatus(`Hoja 'DATOS' no encontrada. Se usa '${sheetName}'.`, false);
+  }
   return data;
 }
 
