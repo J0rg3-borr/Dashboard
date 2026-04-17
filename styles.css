@@ -237,6 +237,37 @@ input[type="file"] {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.stats-summary {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(203, 213, 225, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.stats-summary h3 {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.stats-summary-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.1);
+  font-size: 0.95rem;
+}
+
+.stats-summary-item:last-child {
+  border-bottom: none;
+}
+
+.stats-summary-item strong {
+  color: #ffffff;
+}
+
 .summary-item {
   display: flex;
   justify-content: space-between;

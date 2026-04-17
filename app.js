@@ -87,9 +87,25 @@ function detectFields(sample) {
 
 function isStatisticHeaderRow(row) {
   if (!Array.isArray(row)) return false;
-  const values = row.slice(0, 3).map((cell) => String(cell ?? "").trim().toLowerCase());
-  const headers = ["categoria", "medida", "valor", "tendencia central", "dispersión", "posición", "forma"];
-  return values.some((value) => headers.some((header) => value.includes(header)));
+  const values = row.slice(0, 3).map((cell) => String(cell ?? "").trim().toLowerCase()).filter(Boolean);
+  if (!values.length) return false;
+
+  const headers = [
+    "categoria",
+    "medida",
+    "valor",
+    "concepto",
+    "resultado",
+    "tendencia central",
+    "dispersión",
+    "dispersión",
+    "posición",
+    "forma",
+    "coef",
+    "asimetría",
+  ];
+
+  return values.every((value) => headers.some((header) => value.includes(header)));
 }
 
 function detectStatisticKeyValuePattern(rawRows) {
@@ -98,15 +114,15 @@ function detectStatisticKeyValuePattern(rawRows) {
   );
   if (!rows.length) return false;
 
-  const dataRows = rows.filter((row) => !isStatisticHeaderRow(row));
+  const hasHeader = isStatisticHeaderRow(rows[0]);
+  const dataRows = hasHeader ? rows.slice(1) : rows;
   if (!dataRows.length) return false;
 
   return dataRows.every((row) => {
-    const [category, metric, value] = row;
+    const [first, second] = row;
     return (
-      typeof category === "string" && category.trim() &&
-      typeof metric === "string" && metric.trim() &&
-      value !== undefined && value !== null && String(value).trim() !== ""
+      typeof first === "string" && first.trim() &&
+      second !== undefined && second !== null && String(second).trim() !== ""
     );
   });
 }
@@ -166,6 +182,30 @@ function renderStatisticKPIs(rows) {
   rows.forEach((item) => {
     kpis.appendChild(renderKPI(item.metric, item.value));
   });
+}
+
+function renderSidebarStatisticSummary(rows) {
+  const statsList = document.getElementById("statsList");
+  const statsContainer = document.getElementById("statsSummary");
+  if (!statsList || !statsContainer) return;
+
+  statsList.innerHTML = "";
+  rows.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "stats-summary-item";
+
+    const label = document.createElement("span");
+    label.textContent = item.metric;
+
+    const value = document.createElement("strong");
+    value.textContent = item.value;
+
+    row.appendChild(label);
+    row.appendChild(value);
+    statsList.appendChild(row);
+  });
+
+  statsContainer.style.display = rows.length ? "block" : "none";
 }
 
 function normalizeKey(key) {
@@ -488,6 +528,7 @@ function buildDashboard(rows) {
     actualKeys = {};
     updateMetadata(rows);
     renderStatisticKPIs(rows);
+    renderSidebarStatisticSummary(rows);
     renderStatisticData(rows);
     document.getElementById("tables").style.display = "none";
     document.getElementById("chartCountries")?.parentElement?.classList.add("hidden-card");
