@@ -25,6 +25,20 @@
       </div>
 
       <div class="panel">
+        <h2>Filtros</h2>
+        <div class="filters-row">
+          <div class="filter">
+            <label for="filterYear">Año</label>
+            <select id="filterYear"></select>
+          </div>
+        </div>
+        <div class="filter actions">
+          <button id="clearFilters" type="button">Borrar filtro</button>
+          <p class="hint">( actualizar)</p>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>Estadísticas</h2>
         <p class="subtitle">PERDIDA FINANCIERA</p>
         <div id="dataSummary" class="data-summary">
@@ -58,21 +72,9 @@
           </div>
         </div>
       </div>
-
-      <div class="panel">
-        <h2>Filtros</h2>
-        <div class="filters-row">
-          <div class="filter">
-            <label for="filterYear">Año</label>
-            <select id="filterYear"></select>
-          </div>
-        </div>
-        <div class="filter actions">
-          <button id="clearFilters" type="button">Borrar filtro</button>
-          <p class="hint">( actualizar)</p>
-        </div>
-      </div>
     </aside>
+
+      
 
     <section class="main-content">
       <div id="kpis" class="kpi-row"></div>
@@ -82,6 +84,7 @@
           <h2>Países más atacados</h2>
           <canvas id="chartCountries"></canvas>
         </div>
+        
 
         <div class="card">
           <h2>Distribución de pérdidas por sector (torta)</h2>
