@@ -5,179 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard de Ciberataques</title>
   <link rel="stylesheet" href="styles.css" />
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- SheetJS (xlsx) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.2/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <header>
     <h1>Dashboard de Ciberataques</h1>
     <p class="subtitle"> generar el dashboard y ver los datos.</p>
   </header>
-
   <main class="app-layout">
-    <aside class="sidebar">
+    <section class="main-content" style="max-width: 640px; margin: 2rem auto;">
       <div class="panel">
-        <h2>Datos</h2>
-        <input id="fileInput" type="file" accept=".xlsx,.xls" />
-        <div id="uploadStatus" class="hint"></div>
-        <div id="dataSummary" class="data-summary">
-          <div class="summary-item">
-            <span>Registros</span>
-            <strong id="summaryRecords">0</strong>
+        <h2>Estadísticas</h2>
+        <div class="stats-summary" style="display: block;">
+          <div class="stats-summary-item">
+            <span>Media Aritmética</span>
+            <strong>50,795</strong>
           </div>
-          <div class="summary-item">
-            <span>Usuarios afectados</span>
-            <strong id="summaryUsers">0</strong>
+          <div class="stats-summary-item">
+            <span>Mediana</span>
+            <strong>17,99</strong>
           </div>
-          <div class="summary-item">
-            <span>Pérdidas</span>
-            <strong id="summaryLoss">$0</strong>
+          <div class="stats-summary-item">
+            <span>Moda</span>
+            <strong>28,78661625</strong>
           </div>
-          <div class="summary-item">
-            <span>Promedio resolución</span>
-            <strong id="summaryResolution">0 días</strong>
+          <div class="stats-summary-item">
+            <span>Desviación Estándar</span>
+            <strong>828,6692752</strong>
           </div>
-          <div class="summary-item">
-            <span>Última actualización</span>
-            <strong id="lastLoaded">-</strong>
+          <div class="stats-summary-item">
+            <span>Varianza</span>
+            <strong>49,8775</strong>
           </div>
-        </div>
-        <div id="statsSummary" class="stats-summary">
-          <h3>Estadísticas</h3>
-          <div id="statsList">
-            <div class="stats-summary-item">
-              <span>Media Aritmética</span>
-              <strong>50,795</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Mediana</span>
-              <strong>17,99</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Moda</span>
-              <strong>28,78661625</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Desviación Estándar</span>
-              <strong>828,6692752</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Varianza</span>
-              <strong>49,8775</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Cuartiles (IQR)</span>
-              <strong>-0,016860395</strong>
-            </div>
-            <div class="stats-summary-item">
-              <span>Coef. de Asimetría</span>
-              <strong>-0,016860395</strong>
-            </div>
+          <div class="stats-summary-item">
+            <span>Cuartiles (IQR)</span>
+            <strong>-0,016860395</strong>
+          </div>
+          <div class="stats-summary-item">
+            <span>Coef. de Asimetría</span>
+            <strong>-0,016860395</strong>
           </div>
         </div>
       </div>
-
-      <div class="panel">
-        <h2>Filtros</h2>
-        <div class="filters-row">
-          <div class="filter">
-            <label for="filterYear">Año</label>
-            <select id="filterYear"></select>
-          </div>
-        </div>
-        <div class="filter actions">
-          <button id="clearFilters" type="button">Borrar filtro</button>
-          <p class="hint">( actualizar)</p>
-        </div>
-      </div>
-    </aside>
-
-    <section class="main-content">
-      <div id="kpis" class="kpi-row"></div>
-
-      <section id="charts" class="grid">
-        <div class="card">
-          <h2>Países más atacados</h2>
-          <canvas id="chartCountries"></canvas>
-        </div>
-
-        <div class="card">
-          <h2>Distribución de pérdidas por sector (torta)</h2>
-          <canvas id="chartLossByIndustry"></canvas>
-        </div>
-      </section>
-
-      <section class="card" id="tables">
-        <h2>Resumen de categorías</h2>
-        <div class="table-row">
-          <div class="table-card">
-            <h3>Tipos de ataque</h3>
-            <table id="tableAttackTypes">
-              <thead>
-                <tr><th>Tipo de ataque</th><th>Incidentes</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="table-card">
-            <h3>Sectores industriales</h3>
-            <table id="tableIndustry">
-              <thead>
-                <tr><th>Sector</th><th>Incidentes</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="table-card">
-            <h3>Vulnerabilidades</h3>
-            <table id="tableVulnerabilities">
-              <thead>
-                <tr><th>Vulnerabilidad</th><th>Incidentes</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="table-card">
-            <h3>Mecanismos de defensa</h3>
-            <table id="tableDefense">
-              <thead>
-                <tr><th>Mecanismo</th><th>Incidentes</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" id="statsCard" style="display: none;">
-        <h2>Estadísticas clave</h2>
-        <div class="table-scroll">
-          <table id="statsTable">
-            <thead>
-              <tr><th>Categoría</th><th>Medida</th><th>Valor</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="card" id="dataTable">
-        <h2>Vista de registros</h2>
-        <div class="table-meta">
-          <span id="tableCount">Mostrando 0 de 0 registros</span>
-          <button id="toggleRecords" type="button" class="small-btn">Mostrar todo</button>
-        </div>
-        <div class="table-scroll">
-          <table id="recordsTable">
-            <thead><tr id="recordsHeader"></tr></thead>
-            <tbody id="recordsBody"></tbody>
-          </table>
-        </div>
-      </section>
     </section>
   </main>
-  <script src="app.js"></script>
 </body>
 </html>
