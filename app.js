@@ -85,13 +85,23 @@ function detectFields(sample) {
   return found;
 }
 
+function isStatisticHeaderRow(row) {
+  if (!Array.isArray(row)) return false;
+  const values = row.slice(0, 3).map((cell) => String(cell ?? "").trim().toLowerCase());
+  const headers = ["categoria", "medida", "valor", "tendencia central", "dispersión", "posición", "forma"];
+  return values.some((value) => headers.some((header) => value.includes(header)));
+}
+
 function detectStatisticKeyValuePattern(rawRows) {
   const rows = rawRows.filter(
     (row) => Array.isArray(row) && row.some((cell) => cell !== "")
   );
   if (!rows.length) return false;
 
-  const validRows = rows.filter((row) => {
+  const dataRows = rows.filter((row) => !isStatisticHeaderRow(row));
+  if (!dataRows.length) return false;
+
+  return dataRows.every((row) => {
     const [category, metric, value] = row;
     return (
       typeof category === "string" && category.trim() &&
@@ -99,12 +109,13 @@ function detectStatisticKeyValuePattern(rawRows) {
       value !== undefined && value !== null && String(value).trim() !== ""
     );
   });
-  return validRows.length >= 1 && validRows.length === rows.length;
 }
 
 function buildStatisticRows(rawRows) {
   return rawRows.reduce((acc, row) => {
     if (!Array.isArray(row)) return acc;
+    if (isStatisticHeaderRow(row)) return acc;
+
     const values = row.map((cell) => String(cell ?? "").trim());
     if (!values.some((value) => value !== "")) return acc;
 
@@ -148,6 +159,13 @@ function renderStatisticData(rows) {
   });
 
   statsCard.style.display = rows.length ? "block" : "none";
+}
+
+function renderStatisticKPIs(rows) {
+  kpis.innerHTML = "";
+  rows.forEach((item) => {
+    kpis.appendChild(renderKPI(item.metric, item.value));
+  });
 }
 
 function normalizeKey(key) {
@@ -469,6 +487,7 @@ function buildDashboard(rows) {
   if (isStatsSheet) {
     actualKeys = {};
     updateMetadata(rows);
+    renderStatisticKPIs(rows);
     renderStatisticData(rows);
     document.getElementById("tables").style.display = "none";
     document.getElementById("chartCountries")?.parentElement?.classList.add("hidden-card");
@@ -585,7 +604,10 @@ function parseWorkbook(workbook) {
   const targetSheetName = workbook.SheetNames.find((name) =>
     normalizeSheetName(name) === "datos"
   );
-  const sheetName = targetSheetName || workbook.SheetNames[0];
+  const statsSheetName = workbook.SheetNames.find((name) =>
+    normalizeSheetName(name).includes("estadistica") || normalizeSheetName(name).includes("statistics")
+  );
+  const sheetName = targetSheetName || statsSheetName || workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
 
   const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
