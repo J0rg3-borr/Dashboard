@@ -161,6 +161,10 @@ table {
   font-size: 0.9rem;
 }
 
+.hidden-card {
+  display: none !important;
+}
+
 thead th {
   text-align: left;
   padding: 0.5rem 0.5rem;

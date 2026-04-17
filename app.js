@@ -8,6 +8,7 @@ let charts = {};
 let allRows = [];
 let actualKeys = {};
 let showAllRecords = false;
+let isStatsSheet = false;
 
 const FIELD_CANDIDATES = {
   country: ["PAIS", "PAÍS"],
@@ -82,6 +83,71 @@ function detectFields(sample) {
     found[name] = pickKey(sample, candidates);
   }
   return found;
+}
+
+function detectStatisticKeyValuePattern(rawRows) {
+  const rows = rawRows.filter(
+    (row) => Array.isArray(row) && row.some((cell) => cell !== "")
+  );
+  if (!rows.length) return false;
+
+  const validRows = rows.filter((row) => {
+    const [category, metric, value] = row;
+    return (
+      typeof category === "string" && category.trim() &&
+      typeof metric === "string" && metric.trim() &&
+      value !== undefined && value !== null && String(value).trim() !== ""
+    );
+  });
+  return validRows.length >= 1 && validRows.length === rows.length;
+}
+
+function buildStatisticRows(rawRows) {
+  return rawRows.reduce((acc, row) => {
+    if (!Array.isArray(row)) return acc;
+    const values = row.map((cell) => String(cell ?? "").trim());
+    if (!values.some((value) => value !== "")) return acc;
+
+    if (values.length >= 3 && values[0] && values[1] && values[2]) {
+      acc.push({
+        category: values[0],
+        metric: values[1],
+        value: values[2],
+      });
+    } else if (values.length >= 2 && values[0] && values[1]) {
+      acc.push({
+        category: "",
+        metric: values[0],
+        value: values[1],
+      });
+    }
+    return acc;
+  }, []);
+}
+
+function renderStatisticData(rows) {
+  const statsCard = document.getElementById("statsCard");
+  const statsBody = document.querySelector("#statsTable tbody");
+  if (!statsCard || !statsBody) return;
+
+  statsBody.innerHTML = "";
+  rows.forEach((item) => {
+    const tr = document.createElement("tr");
+    const tdCategory = document.createElement("td");
+    const tdMetric = document.createElement("td");
+    const tdValue = document.createElement("td");
+
+    tdCategory.textContent = item.category || "-";
+    tdMetric.textContent = item.metric;
+    tdValue.textContent = item.value;
+
+    tr.appendChild(tdCategory);
+    tr.appendChild(tdMetric);
+    tr.appendChild(tdValue);
+    statsBody.appendChild(tr);
+  });
+
+  statsCard.style.display = rows.length ? "block" : "none";
 }
 
 function normalizeKey(key) {
@@ -311,15 +377,23 @@ function updateMetadata(rows) {
   const summaryResolution = document.getElementById("summaryResolution");
   const lastLoaded = document.getElementById("lastLoaded");
 
+  if (summaryRecords) summaryRecords.textContent = rows.length.toLocaleString();
+  if (lastLoaded) lastLoaded.textContent = new Date().toLocaleString();
+
+  if (isStatsSheet) {
+    if (summaryUsers) summaryUsers.textContent = "-";
+    if (summaryLoss) summaryLoss.textContent = "-";
+    if (summaryResolution) summaryResolution.textContent = "-";
+    return;
+  }
+
   const totalUsers = sumBy(rows, actualKeys.users);
   const totalLoss = sumBy(rows, actualKeys.loss);
   const avgResolution = averageBy(rows, actualKeys.resolution);
 
-  if (summaryRecords) summaryRecords.textContent = rows.length.toLocaleString();
   if (summaryUsers) summaryUsers.textContent = formatNumber(totalUsers);
   if (summaryLoss) summaryLoss.textContent = formatCurrency(totalLoss);
   if (summaryResolution) summaryResolution.textContent = `${avgResolution.toFixed(1)} días`;
-  if (lastLoaded) lastLoaded.textContent = new Date().toLocaleString();
 }
 
 function renderTable(tableId, items) {
@@ -391,6 +465,23 @@ function renderRecordsTable(rows) {
 
 function buildDashboard(rows) {
   kpis.innerHTML = "";
+
+  if (isStatsSheet) {
+    actualKeys = {};
+    updateMetadata(rows);
+    renderStatisticData(rows);
+    document.getElementById("tables").style.display = "none";
+    document.getElementById("chartCountries")?.parentElement?.classList.add("hidden-card");
+    document.getElementById("chartLossByIndustry")?.parentElement?.classList.add("hidden-card");
+    renderRecordsTable(rows);
+    setStatus(`Datos estadísticos cargados: ${rows.length} registros`, false);
+    return;
+  }
+
+  document.getElementById("tables").style.display = "block";
+  document.getElementById("statsCard").style.display = "none";
+  document.getElementById("chartCountries")?.parentElement?.classList.remove("hidden-card");
+  document.getElementById("chartLossByIndustry")?.parentElement?.classList.remove("hidden-card");
 
   const sample = rows[0] || {};
   actualKeys = detectFields(sample);
@@ -496,11 +587,19 @@ function parseWorkbook(workbook) {
   );
   const sheetName = targetSheetName || workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+  const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+  isStatsSheet = detectStatisticKeyValuePattern(rawRows);
+
   if (!targetSheetName && workbook.SheetNames.length > 1) {
     setStatus(`Hoja 'DATOS' no encontrada. Se usa '${sheetName}'.`, false);
   }
-  return data;
+
+  if (isStatsSheet) {
+    return buildStatisticRows(rawRows);
+  }
+
+  return XLSX.utils.sheet_to_json(sheet, { defval: "" });
 }
 
 if (fileInput) {
