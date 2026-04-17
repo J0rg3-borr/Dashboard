@@ -481,9 +481,18 @@ function buildDashboard(rows) {
   setStatus(`Datos cargados: ${totalIncidents} registros`, false);
 }
 
+function normalizeSheetName(name) {
+  return String(name || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
 function parseWorkbook(workbook) {
   const targetSheetName = workbook.SheetNames.find((name) =>
-    String(name).trim().toLowerCase() === "datos"
+    normalizeSheetName(name) === "datos"
   );
   const sheetName = targetSheetName || workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
