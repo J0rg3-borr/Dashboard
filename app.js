@@ -560,6 +560,9 @@ function buildDashboard(rows) {
 
   const countries = groupBy(rows, actualKeys.country).slice(0, 12);
   const attacks = groupBy(rows, actualKeys.attackType).slice(0, 10);
+  const mostFrequentAttack = attacks[0];
+  const mostFrequentAttackLabel = mostFrequentAttack ? mostFrequentAttack.label : "N/D";
+  kpis.appendChild(renderKPI("Tipo de ataque más frecuente", mostFrequentAttackLabel));
   const industries = groupBy(rows, actualKeys.industry)
     .slice(0, 10)
     .map((item) => ({ ...item, label: traducirSectorIndustria(item.label) }));
